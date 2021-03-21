@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "es6",
+    "target": "ES6",
+    "lib": ["esnext", "dom"],
+    "outDir": "memomixweb/src/memomix",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true
+  },
+  "files": [
+    "memomixts/memomix.ts"
+  ]
+}

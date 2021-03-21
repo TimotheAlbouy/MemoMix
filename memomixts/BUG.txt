@@ -1,0 +1,1 @@
+possible que 2 personnes qui ne doivent pas être ensemble puissent l'être si les together constraints sont particulières, vu qu'elles sont satisfaites avant les apart constraints
