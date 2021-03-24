@@ -1,9 +1,5 @@
 import MemoMix from './memomix.js';
-import {
-    importPersonIds, importGroupSizes, importHistory, importConstraints,
-    exportEntry
-} from './projectImportExport.js';
-
+import { importPersonIds, importGroupSizes, importHistory, importConstraints } from './projectImportExport.js';
 let personIdsArray = [
     'Timothé',
     'François',
@@ -15,13 +11,11 @@ let personIdsArray = [
     'Théophane',
     'Erwann',
 ];
-
 let groupsSizesObject = {
     g1: 3,
     g2: 3,
     g3: 3
 };
-
 let historyArray = [
     {
         g1: ['Timothé', 'François', 'Laurent'],
@@ -34,27 +28,15 @@ let historyArray = [
         g3: ['Cyril', 'Arnaud', 'Laurent']
     }
 ];
-
 let constraintsArray = [
-    {type: 'together', personIds: ['Timothé', 'François'], mandatoryGroup: 'g1'},
-    {type: 'together', personIds: ['Cyril'], forbiddenGroups: ['g2']},
-    {type: 'apart', personIds: ['Arnaud', 'Théophane']}
+    { type: 'together', personIds: ['Timothé', 'François'], mandatoryGroup: 'g1' },
+    { type: 'together', personIds: ['Cyril'], forbiddenGroups: ['g2'] },
+    { type: 'apart', personIds: ['Arnaud', 'Théophane'] }
 ];
-
-/*
-Possible output without constraints:
-{
-    '1': {'Timothé', 'Arnaud', 'Erwann'},
-    '2': {'Théo', 'Théophane', 'Laurent'},
-    '3': {'Cyril', 'François', 'Jean'}
-}
-*/
-
 let personIds = importPersonIds(personIdsArray);
 let groupSizes = importGroupSizes(groupsSizesObject);
 let history = importHistory(historyArray);
 let constraints = importConstraints(constraintsArray);
-
 let mm = new MemoMix(personIds, groupSizes, history, constraints);
 let bugsMandatoryGroup = 0;
 let bugsForbiddenGroups = 0;
@@ -70,16 +52,7 @@ for (let i = 0; i < 1000; i++) {
             bugsApart += 1;
     }
 }
-
 console.log('Bugs mandatory groups:', bugsMandatoryGroup / 1000);
 console.log('Bugs forbidden groups:', bugsForbiddenGroups / 1000);
 console.log('Bugs apart:', bugsApart / 1000);
-//let entry = mm.getNewEntry();
-//console.log(exportEntry(entry));
-
-
-
-
-
-
-
+//# sourceMappingURL=test.js.map

@@ -27,7 +27,7 @@ function isJson(test: any): test is Json {
     return false;
 }
 
-function toJson(struct: Struct) {
+export function toJson(struct: Struct) {
     let json: Json = null;
     if (isJson(struct))
         json = struct;

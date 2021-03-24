@@ -1,49 +1,28 @@
-import { Entry, Constraint } from 'util.js';
-
-interface GroupSizesObject {
-    [key: string]: number;
-}
-
-interface EntryObject {
-    [key: string]: string[];
-}
-
-interface ConstraintObject {
-    type: string,
-    personIds: string[];
-    mandatoryGroup?: string;
-    forbiddenGroups?: string[]
-}
-
-export function importPersonIds(personIdsArray: string[]) {
+export function importPersonIds(personIdsArray) {
     return new Set(personIdsArray);
 }
-
-export function importGroupSizes(groupSizesObject: GroupSizesObject) {
-    let groupSizes = new Map<string, number>();
+export function importGroupSizes(groupSizesObject) {
+    let groupSizes = new Map();
     for (let groupId in groupSizesObject)
         groupSizes.set(groupId, groupSizesObject[groupId]);
     return groupSizes;
 }
-
-export function importHistory(historyArray: EntryObject[]) {
-    let history: Entry[] = [];
+export function importHistory(historyArray) {
+    let history = [];
     for (let entryObject of historyArray)
         history.push(importEntry(entryObject));
     return history;
 }
-
-export function importEntry(entryObject: EntryObject) {
-    let entry = new Map<string, Set<string>>();
+export function importEntry(entryObject) {
+    let entry = new Map();
     for (let groupId in entryObject)
         entry.set(groupId, new Set(entryObject[groupId]));
     return entry;
 }
-
-export function importConstraints(constraintObjectsArray: ConstraintObject[]) {
-    let constraints: Constraint[] = [];
+export function importConstraints(constraintObjectsArray) {
+    let constraints = [];
     for (let constraintObject of constraintObjectsArray) {
-        let constraint: Constraint = {
+        let constraint = {
             type: constraintObject.type,
             personIds: new Set(constraintObject.personIds)
         };
@@ -55,36 +34,31 @@ export function importConstraints(constraintObjectsArray: ConstraintObject[]) {
     }
     return constraints;
 }
-
-export function exportPersonIds(personIds: Set<string>) {
+export function exportPersonIds(personIds) {
     return Array.from(personIds);
 }
-
-export function exportGroupSizes(groupSizes: Map<string, number>) {
-    let groupSizesObject: GroupSizesObject = {};
+export function exportGroupSizes(groupSizes) {
+    let groupSizesObject = {};
     for (let [groupId, size] of groupSizes)
         groupSizesObject[groupId] = size;
     return groupSizesObject;
 }
-
-export function exportHistory(history: Entry[]) {
-    let historyArray: EntryObject[] = [];
+export function exportHistory(history) {
+    let historyArray = [];
     for (let entry of history)
         historyArray.push(exportEntry(entry));
     return historyArray;
 }
-
-export function exportEntry(entry: Entry) {
-    let entryObject: EntryObject = {};
+export function exportEntry(entry) {
+    let entryObject = {};
     for (let [groupId, group] of entry)
         entryObject[groupId] = Array.from(group);
     return entryObject;
 }
-
-export function exportConstraints(constraints: Constraint[]) {
-    let constraintObjectsArray: Constraint[] = [];
+export function exportConstraints(constraints) {
+    let constraintObjectsArray = [];
     for (let constraint of constraints) {
-        let constraintObject: ConstraintObject = {
+        let constraintObject = {
             type: constraint.type,
             personIds: Array.from(constraint.personIds)
         };
@@ -96,3 +70,4 @@ export function exportConstraints(constraints: Constraint[]) {
     }
     return constraintObjectsArray;
 }
+//# sourceMappingURL=projectImportExport.js.map
