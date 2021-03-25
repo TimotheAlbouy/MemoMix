@@ -136,19 +136,19 @@ class MemoMix {
                     `The person '${personId}' in constraint #'${index}' does not exist.`
                 )
             }
-            if (constraintKeys.includes('mandatoryGroup')) {
+            if (constraintKeys.includes('mandatoryGroup') && constraint.mandatoryGroup != null) {
                 let mandatoryGroupId = constraint.mandatoryGroup;
                 assert(
                     groupIds.has(mandatoryGroupId),
-                    `The mandatory group '${mandatoryGroupId}' in constraint #${index} does not exist.`
+                    `The mandatory group '${mandatoryGroupId}' in constraint #${index+1} does not exist.`
                 );
             }
-            if (constraintKeys.includes('forbiddenGroups')) {
+            if (constraintKeys.includes('forbiddenGroups') && constraint.forbiddenGroups != null) {
                 let forbiddenGroupIds = constraint.forbiddenGroups;
                 for (let forbiddenGroupId of forbiddenGroupIds)
                     assert(
                         groupIds.has(forbiddenGroupId),
-                        `The forbidden group '${forbiddenGroupId}' in constraint #${index} does not exist.`
+                        `The forbidden group '${forbiddenGroupId}' in constraint #${index+1} does not exist.`
                     );
             }
         });

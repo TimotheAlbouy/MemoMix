@@ -131,15 +131,15 @@ class MemoMix:
             for person_id in person_ids:
                 assert person_id in self.person_ids, \
                     f"The person '{person_id}' in constraint #{index} does not exist."
-            if 'mandatoryGroup' in constraint:
-                mandatory_group_id = constraint['mandatoryGroup']
+            mandatory_group_id = constraint.get('mandatoryGroup')
+            forbidden_group_ids = constraint.get('forbiddenGroups')
+            if mandatory_group_id:
                 assert mandatory_group_id in group_ids, \
-                    f"The mandatory group '{mandatory_group_id}' in constraint #{index} does not exist."
-            if 'forbiddenGroups' in constraint:
-                forbidden_group_ids = constraint['forbiddenGroups']
+                    f"The mandatory group '{mandatory_group_id}' in constraint #{index+1} does not exist."
+            if forbidden_group_ids:
                 for forbidden_group_id in forbidden_group_ids:
                     assert forbidden_group_id in group_ids, \
-                        f"The forbidden group '{forbidden_group_id}' in constraint #{index} does not exist."
+                        f"The forbidden group '{forbidden_group_id}' in constraint #{index+1} does not exist."
 
     def check_entry_validity(self, entry: dict):
         """
