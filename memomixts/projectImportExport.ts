@@ -1,22 +1,22 @@
 import { Entry, Constraint } from 'util.js';
 
-interface GroupSizesObject {
+export interface GroupSizesObject {
     [key: string]: number;
 }
 
-interface EntryObject {
+export interface EntryObject {
     [key: string]: string[];
 }
 
-interface ConstraintObject {
+export interface ConstraintObject {
     type: string,
-    personIds: string[];
+    persons: string[];
     mandatoryGroup?: string;
     forbiddenGroups?: string[]
 }
 
-export function importPersonIds(personIdsArray: string[]) {
-    return new Set(personIdsArray);
+export function importPersons(personsArray: string[]) {
+    return new Set(personsArray);
 }
 
 export function importGroupSizes(groupSizesObject: GroupSizesObject) {
@@ -45,7 +45,7 @@ export function importConstraints(constraintObjectsArray: ConstraintObject[]) {
     for (let constraintObject of constraintObjectsArray) {
         let constraint: Constraint = {
             type: constraintObject.type,
-            personIds: new Set(constraintObject.personIds)
+            persons: new Set(constraintObject.persons)
         };
         if (constraintObject.hasOwnProperty('mandatoryGroup'))
             constraint.mandatoryGroup = constraintObject.mandatoryGroup;
@@ -86,7 +86,7 @@ export function exportConstraints(constraints: Constraint[]) {
     for (let constraint of constraints) {
         let constraintObject: ConstraintObject = {
             type: constraint.type,
-            personIds: Array.from(constraint.personIds)
+            persons: Array.from(constraint.persons)
         };
         if (constraint.hasOwnProperty('mandatoryGroup'))
             constraintObject.mandatoryGroup = constraintObject.mandatoryGroup;

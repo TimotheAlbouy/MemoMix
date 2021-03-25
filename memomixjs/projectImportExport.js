@@ -1,5 +1,5 @@
-export function importPersonIds(personIdsArray) {
-    return new Set(personIdsArray);
+export function importPersons(personsArray) {
+    return new Set(personsArray);
 }
 export function importGroupSizes(groupSizesObject) {
     let groupSizes = new Map();
@@ -24,7 +24,7 @@ export function importConstraints(constraintObjectsArray) {
     for (let constraintObject of constraintObjectsArray) {
         let constraint = {
             type: constraintObject.type,
-            personIds: new Set(constraintObject.personIds)
+            persons: new Set(constraintObject.persons)
         };
         if (constraintObject.hasOwnProperty('mandatoryGroup'))
             constraint.mandatoryGroup = constraintObject.mandatoryGroup;
@@ -60,7 +60,7 @@ export function exportConstraints(constraints) {
     for (let constraint of constraints) {
         let constraintObject = {
             type: constraint.type,
-            personIds: Array.from(constraint.personIds)
+            persons: Array.from(constraint.persons)
         };
         if (constraint.hasOwnProperty('mandatoryGroup'))
             constraintObject.mandatoryGroup = constraintObject.mandatoryGroup;

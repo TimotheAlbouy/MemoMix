@@ -1,16 +1,16 @@
 import { getPersonPersonKey, getPersonGroupKey, sum, all, assert, } from './util.js';
 import EntryGenerator from './EntryGenerator.js';
 class MemoMix {
-    constructor(personIds, groupSizes, history = null, constraints = null) {
+    constructor(persons, groupSizes, history = null, constraints = null) {
         if (!history)
             history = [];
         if (!constraints)
             constraints = [];
         this.checkPositiveGroupSizes(groupSizes);
-        this.checkSufficientGroupSizes(personIds, groupSizes);
+        this.checkSufficientGroupSizes(persons, groupSizes);
         for (let entry of history)
             this.checkEntryValidity(entry);
-        this.personIds = personIds;
+        this.personIds = persons;
         this.groupSizes = groupSizes;
         this.history = history;
         this.checkConstraintsValidity(constraints);
@@ -91,7 +91,7 @@ class MemoMix {
         let groupIds = new Set(this.groupSizes.keys());
         constraints.forEach((constraint, index) => {
             let constraintKeys = Object.keys(constraint);
-            let personIds = constraint.personIds;
+            let personIds = constraint.persons;
             for (let personId of personIds) {
                 assert(this.personIds.has(personId), `The person '${personId}' in constraint #'${index}' does not exist.`);
             }

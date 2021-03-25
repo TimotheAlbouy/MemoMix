@@ -1,10 +1,11 @@
 import MemoMix from './memomix.js';
 import {
-    importPersonIds, importGroupSizes, importHistory, importConstraints,
+    GroupSizesObject, EntryObject, ConstraintObject,
+    importPersons, importGroupSizes, importHistory, importConstraints,
     exportEntry
 } from './projectImportExport.js';
 
-let personIdsArray = [
+let personsArray = [
     'Timothé',
     'François',
     'Laurent',
@@ -16,13 +17,13 @@ let personIdsArray = [
     'Erwann',
 ];
 
-let groupsSizesObject = {
+let groupsSizesObject: GroupSizesObject = {
     g1: 3,
     g2: 3,
     g3: 3
 };
 
-let historyArray = [
+let historyArray: EntryObject[] = [
     {
         g1: ['Timothé', 'François', 'Laurent'],
         g2: ['Théo', 'Arnaud', 'Jean'],
@@ -35,10 +36,10 @@ let historyArray = [
     }
 ];
 
-let constraintsArray = [
-    {type: 'together', personIds: ['Timothé', 'François'], mandatoryGroup: 'g1'},
-    {type: 'together', personIds: ['Cyril'], forbiddenGroups: ['g2']},
-    {type: 'apart', personIds: ['Arnaud', 'Théophane']}
+let constraintsArray: ConstraintObject[] = [
+    {type: 'together', persons: ['Timothé', 'François'], mandatoryGroup: 'g1'},
+    {type: 'together', persons: ['Cyril'], forbiddenGroups: ['g2']},
+    {type: 'apart', persons: ['Arnaud', 'Théophane']}
 ];
 
 /*
@@ -50,12 +51,12 @@ Possible output without constraints:
 }
 */
 
-let personIds = importPersonIds(personIdsArray);
+let persons = importPersons(personsArray);
 let groupSizes = importGroupSizes(groupsSizesObject);
 let history = importHistory(historyArray);
 let constraints = importConstraints(constraintsArray);
 
-let mm = new MemoMix(personIds, groupSizes, history, constraints);
+let mm = new MemoMix(persons, groupSizes, history, constraints);
 let bugsMandatoryGroup = 0;
 let bugsForbiddenGroups = 0;
 let bugsApart = 0;
@@ -74,12 +75,8 @@ for (let i = 0; i < 1000; i++) {
 console.log('Bugs mandatory groups:', bugsMandatoryGroup / 1000);
 console.log('Bugs forbidden groups:', bugsForbiddenGroups / 1000);
 console.log('Bugs apart:', bugsApart / 1000);
-//let entry = mm.getNewEntry();
-//console.log(exportEntry(entry));
-
-
-
-
+let entry = mm.getNewEntry();
+console.log(exportEntry(entry));
 
 
 

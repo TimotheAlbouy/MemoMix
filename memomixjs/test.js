@@ -1,6 +1,6 @@
 import MemoMix from './memomix.js';
-import { importPersonIds, importGroupSizes, importHistory, importConstraints } from './projectImportExport.js';
-let personIdsArray = [
+import { importPersons, importGroupSizes, importHistory, importConstraints, exportEntry } from './projectImportExport.js';
+let personsArray = [
     'Timothé',
     'François',
     'Laurent',
@@ -29,15 +29,15 @@ let historyArray = [
     }
 ];
 let constraintsArray = [
-    { type: 'together', personIds: ['Timothé', 'François'], mandatoryGroup: 'g1' },
-    { type: 'together', personIds: ['Cyril'], forbiddenGroups: ['g2'] },
-    { type: 'apart', personIds: ['Arnaud', 'Théophane'] }
+    { type: 'together', persons: ['Timothé', 'François'], mandatoryGroup: 'g1' },
+    { type: 'together', persons: ['Cyril'], forbiddenGroups: ['g2'] },
+    { type: 'apart', persons: ['Arnaud', 'Théophane'] }
 ];
-let personIds = importPersonIds(personIdsArray);
+let persons = importPersons(personsArray);
 let groupSizes = importGroupSizes(groupsSizesObject);
 let history = importHistory(historyArray);
 let constraints = importConstraints(constraintsArray);
-let mm = new MemoMix(personIds, groupSizes, history, constraints);
+let mm = new MemoMix(persons, groupSizes, history, constraints);
 let bugsMandatoryGroup = 0;
 let bugsForbiddenGroups = 0;
 let bugsApart = 0;
@@ -55,4 +55,6 @@ for (let i = 0; i < 1000; i++) {
 console.log('Bugs mandatory groups:', bugsMandatoryGroup / 1000);
 console.log('Bugs forbidden groups:', bugsForbiddenGroups / 1000);
 console.log('Bugs apart:', bugsApart / 1000);
+let entry = mm.getNewEntry();
+console.log(exportEntry(entry));
 //# sourceMappingURL=test.js.map

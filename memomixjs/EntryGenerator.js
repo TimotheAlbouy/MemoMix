@@ -15,7 +15,7 @@ class EntryGenerator {
     generateEntry() {
         for (let constraint of this.constraints) {
             let constraintType = constraint.type;
-            let personIds = constraint.personIds;
+            let personIds = constraint.persons;
             if (constraintType == 'apart')
                 this.satisfyApartConstraint(personIds);
             else if (constraintType == 'together') {
@@ -36,26 +36,18 @@ class EntryGenerator {
     satisfyApartConstraint(personIds) {
         let sortedPersonIds = randomShuffle(Array.from(personIds));
         sortedPersonIds.sort((person1Id, person2Id) => this.pairingCountsMap.get(person1Id) - this.pairingCountsMap.get(person2Id));
-        let availableGroupIds = new Set(Array.from(this.entry.keys()).filter(groupId => this.entry.get(groupId).size < this.groupSizes.get(groupId)));
-        let priorityGroupIds = new Set(Array.from(availableGroupIds).filter(groupId => this.entry.get(groupId).size > 0));
+        let candidateGroupIds = new Set(Array.from(this.entry.keys()).filter(groupId => this.entry.get(groupId).size < this.groupSizes.get(groupId)));
         for (let personId of sortedPersonIds) {
             let groupId = this.getGroupId(personId);
             if (groupId == null) {
-                if (priorityGroupIds.size > 0) {
-                    let bestGroupIds = this.getBestGroupIdsByPersonOccurrences(new Set([personId]), priorityGroupIds);
-                    if (bestGroupIds.size > 1)
-                        bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]), bestGroupIds);
-                    groupId = randomChoice(Array.from(bestGroupIds));
-                    priorityGroupIds.delete(groupId);
-                }
-                else {
-                    let bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]), availableGroupIds);
-                    groupId = randomChoice(Array.from(bestGroupIds));
-                }
+                let bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]), candidateGroupIds);
+                groupId = randomChoice(Array.from(bestGroupIds));
                 this.entry.get(groupId).add(personId);
                 this.remainingPersonIds.delete(personId);
             }
-            availableGroupIds.delete(groupId);
+            candidateGroupIds.delete(groupId);
+            if (candidateGroupIds.size == 0)
+                return;
         }
     }
     satisfyTogetherConstraint(personIds, mandatoryGroupId = null, forbiddenGroupIds = null) {
@@ -103,10 +95,9 @@ class EntryGenerator {
                         if (bestGroupIds.size == 0)
                             sortedPersonIds.pop();
                     }
-                    else if (bestGroupIds.size > 1) {
-                        bestGroupIds = this.getBestGroupIdsByGroupOccurrences(bestGroupIds, candidateGroupIds);
-                    }
                 }
+                if (bestGroupIds.size > 1)
+                    bestGroupIds = this.getBestGroupIdsByGroupOccurrences(bestGroupIds, candidateGroupIds);
                 let groupId = randomChoice(Array.from(bestGroupIds));
                 let personIds = new Set(sortedPersonIds);
                 personIds.forEach(personId => this.entry.get(groupId).add(personId));
@@ -148,14 +139,10 @@ class EntryGenerator {
         while (sortedRemainingPersonIds.length > 0) {
             let personId = sortedRemainingPersonIds.shift();
             let bestGroupIds = this.getBestGroupIdsByPersonOccurrences(new Set([personId]));
+            if (bestGroupIds.size == 0)
+                bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]));
             if (bestGroupIds.size > 1)
                 bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]), bestGroupIds);
-            let groupId = randomChoice(Array.from(bestGroupIds));
-            this.entry.get(groupId).add(personId);
-        }
-        while (sortedRemainingPersonIds.length > 0) {
-            let personId = sortedRemainingPersonIds.shift();
-            let bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]));
             let groupId = randomChoice(Array.from(bestGroupIds));
             this.entry.get(groupId).add(personId);
         }

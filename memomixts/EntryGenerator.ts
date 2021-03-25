@@ -39,7 +39,7 @@ class EntryGenerator {
         // satisfy the constraints according to their priority (i.e. index in the list)
         for (let constraint of this.constraints) {
             let constraintType = constraint.type;
-            let personIds = constraint.personIds;
+            let personIds = constraint.persons;
             if (constraintType == 'apart')
                 this.satisfyApartConstraint(personIds);
             else if (constraintType == 'together') {
@@ -68,41 +68,25 @@ class EntryGenerator {
             this.pairingCountsMap.get(person1Id) - this.pairingCountsMap.get(person2Id)
         );
         // IDs of groups that are not full
-        let availableGroupIds = new Set(Array.from(this.entry.keys()).filter(
+        let candidateGroupIds = new Set(Array.from(this.entry.keys()).filter(
             groupId => this.entry.get(groupId).size < this.groupSizes.get(groupId)
-        ));
-        // IDs of groups that are not empty nor full
-        let priorityGroupIds = new Set(Array.from(availableGroupIds).filter(
-            groupId => this.entry.get(groupId).size > 0
         ));
         for (let personId of sortedPersonIds) {
             let groupId = this.getGroupId(personId);
             // if the person is not already inserted
             if (groupId == null) {
-                // if there are still groups that are not empty nor full, use them in priority
-                // so that people are less left alone
-                if (priorityGroupIds.size > 0) {
-                    let bestGroupIds = this.getBestGroupIdsByPersonOccurrences(
-                        new Set([personId]), priorityGroupIds
-                    );
-                    // if there is a tie
-                    if (bestGroupIds.size > 1)
-                        bestGroupIds = this.getBestGroupIdsByGroupOccurrences(
-                            new Set([personId]), bestGroupIds
-                        );
-                    // in case there is still a tie, choose randomly
-                    groupId = randomChoice(Array.from(bestGroupIds));
-                    priorityGroupIds.delete(groupId);
-                } else {
-                    let bestGroupIds = this.getBestGroupIdsByGroupOccurrences(
-                        new Set([personId]), availableGroupIds
-                    );
-                    groupId = randomChoice(Array.from(bestGroupIds));
-                }
+                let bestGroupIds = this.getBestGroupIdsByGroupOccurrences(
+                    new Set([personId]), candidateGroupIds
+                );
+                groupId = randomChoice(Array.from(bestGroupIds));
                 this.entry.get(groupId).add(personId);
                 this.remainingPersonIds.delete(personId);
             }
-            availableGroupIds.delete(groupId);
+            candidateGroupIds.delete(groupId);
+            // if there are no more groups to insert the person,
+            // we cannot satisfy the constraint further
+            if (candidateGroupIds.size == 0)
+                return;
         }
     }
 
@@ -169,12 +153,12 @@ class EntryGenerator {
                         )
                         if (bestGroupIds.size == 0)
                             sortedPersonIds.pop();
-                    } else if (bestGroupIds.size > 1) {
-                        bestGroupIds = this.getBestGroupIdsByGroupOccurrences(
-                            bestGroupIds, candidateGroupIds
-                        );
                     }
                 }
+                if (bestGroupIds.size > 1)
+                    bestGroupIds = this.getBestGroupIdsByGroupOccurrences(
+                        bestGroupIds, candidateGroupIds
+                    );
                 let groupId = randomChoice(Array.from(bestGroupIds));
                 let personIds = new Set(sortedPersonIds);
                 personIds.forEach(personId => this.entry.get(groupId).add(personId));
@@ -236,28 +220,19 @@ class EntryGenerator {
             this.pairingCountsMap.get(person1Id) - this.pairingCountsMap.get(person2Id)
         );
 
-        // put the remaining persons in non-full and non-empty groups
-        // in a way to minimize the average number of occurrences with other persons
+        // put the remaining persons in non-full groups
+        // in a way to minimize the average number of occurrences with other persons/groups
         while (sortedRemainingPersonIds.length > 0) {
             // get the person ID with the lowest number of past pairings
             let personId = sortedRemainingPersonIds.shift();
             let bestGroupIds = this.getBestGroupIdsByPersonOccurrences(new Set([personId]));
+            // if no group was found
+            if (bestGroupIds.size == 0)
+                bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]))
             // if there is a tie
             if (bestGroupIds.size > 1)
                 bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]), bestGroupIds);
             // in case there is still a tie, choose randomly
-            let groupId = randomChoice(Array.from(bestGroupIds));
-            this.entry.get(groupId).add(personId);
-        }
-
-        // if there still remains non-inserted persons
-        // insert them in the remaining empty groups, i.e. groups of size 1
-        // (unless there was only 1 person to insert to begin with)
-        while (sortedRemainingPersonIds.length > 0) {
-            // get the person ID with the lowest number of past pairings
-            let personId = sortedRemainingPersonIds.shift();
-            let bestGroupIds = this.getBestGroupIdsByGroupOccurrences(new Set([personId]));
-            // in case there is a tie, choose randomly
             let groupId = randomChoice(Array.from(bestGroupIds));
             this.entry.get(groupId).add(personId);
         }

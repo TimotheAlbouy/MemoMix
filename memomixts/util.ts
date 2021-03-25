@@ -2,7 +2,7 @@ export type Entry = Map<string, Set<string>>;
 
 export interface Constraint {
     type: string,
-    personIds: Set<string>;
+    persons: Set<string>;
     mandatoryGroup?: string;
     forbiddenGroups?: Set<string>
 }

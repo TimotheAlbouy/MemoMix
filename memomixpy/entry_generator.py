@@ -29,7 +29,7 @@ class EntryGenerator:
         # satisfy the constraints according to their priority (i.e. index in the list)
         for constraint in self.constraints:
             constraint_type = constraint['type']
-            person_ids = constraint['personIds']
+            person_ids = constraint['persons']
             if constraint_type == 'apart':
                 self.satisfy_apart_constraint(person_ids=person_ids)
             elif constraint_type == 'together':
@@ -51,42 +51,24 @@ class EntryGenerator:
             key=lambda person_id: self.pairing_counts_map[person_id]
         )
         # IDs of groups that are not full
-        available_group_ids = {
+        candidate_group_ids = {
             group_id for group_id, person_ids in self.entry.items()
             if len(person_ids) < self.group_sizes[group_id]
-        }
-        # IDs of groups that are not empty nor full
-        priority_group_ids = {
-            group_id for group_id in available_group_ids
-            if self.entry[group_id]
         }
         for person_id in sorted_person_ids:
             group_id = self.get_group_id(person_id)
             # if the person is not already inserted
             if not group_id:
-                # if there are still groups that are not empty nor full, use them in priority
-                # so that people are less left alone
-                if priority_group_ids:
-                    best_group_ids = self.get_best_group_ids_by_person_occurrences(
-                        person_ids={person_id}, candidate_group_ids=priority_group_ids
-                    )
-                    if len(best_group_ids) > 1:
-                        best_group_ids = self.get_best_group_ids_by_group_occurrences(
-                            person_ids={person_id}, candidate_group_ids=best_group_ids
-                        )
-                    group_id = random_choice(best_group_ids)
-                    priority_group_ids.remove(group_id)
-                else:
-                    best_group_ids = self.get_best_group_ids_by_group_occurrences(
-                        person_ids={person_id}, candidate_group_ids=available_group_ids
-                    )
-                    group_id = random_choice(best_group_ids)
+                best_group_ids = self.get_best_group_ids_by_group_occurrences(
+                    person_ids={person_id}, candidate_group_ids=candidate_group_ids
+                )
+                group_id = random_choice(best_group_ids)
                 self.entry[group_id].add(person_id)
                 self.remaining_person_ids.remove(person_id)
-            available_group_ids.remove(group_id)
+            candidate_group_ids.remove(group_id)
             # if there are no more groups to insert the person,
             # we cannot satisfy the constraint further
-            if not available_group_ids:
+            if not candidate_group_ids:
                 return
     
     def satisfy_together_constraint(self, person_ids: set, mandatory_group_id: str=None, forbidden_group_ids: set=None):
@@ -142,10 +124,10 @@ class EntryGenerator:
                         )
                         if not best_group_ids:
                             sorted_person_ids.pop()
-                    elif len(best_group_ids) > 1:
-                        best_group_ids = self.get_best_group_ids_by_group_occurrences(
-                            person_ids=best_group_ids, candidate_group_ids=candidate_group_ids
-                        )
+                if len(best_group_ids) > 1:
+                    best_group_ids = self.get_best_group_ids_by_group_occurrences(
+                        person_ids=best_group_ids, candidate_group_ids=candidate_group_ids
+                    )
                 group_id = random_choice(best_group_ids)
                 person_ids = set(sorted_person_ids)
                 self.entry[group_id].update(person_ids)
@@ -196,31 +178,24 @@ class EntryGenerator:
             key=lambda person_id: self.pairing_counts_map[person_id]
         )
 
-        # put the remaining persons in non-full and non-empty groups
-        # in a way to minimize the average number of occurrences with other persons
+        # put the remaining persons in non-full groups
+        # in a way to minimize the average number of occurrences with other persons/groups
         while sorted_remaining_person_ids:
             # get the person ID with the lowest number of past pairings
             person_id = sorted_remaining_person_ids.pop(0)
             # get the set of candidate group IDs
             best_group_ids = self.get_best_group_ids_by_person_occurrences(person_ids={person_id})
+            # if no group was found
+            if not best_group_ids:
+                best_group_ids = self.get_best_group_ids_by_group_occurrences(person_ids={person_id})
             # if there is a tie
-            if len(best_group_ids) > 1:
+            elif len(best_group_ids) > 1:
                 best_group_ids = self.get_best_group_ids_by_group_occurrences(
                     person_ids={person_id}, candidate_group_ids=best_group_ids
                 )
             # in case there is still a tie, choose randomly
             group_id = random_choice(best_group_ids)
             self.entry[group_id].add(person_id)
-
-        # if there still remains non-inserted persons
-        # insert them in the remaining empty groups, i.e. groups of size 1
-        # (unless there was only 1 person to insert to begin with)
-        while sorted_remaining_person_ids:
-            person_id = sorted_remaining_person_ids.pop(0)
-            best_group_ids = self.get_best_group_ids_by_group_occurrences(person_ids={person_id})
-            # in case there is a tie, choose randomly
-            group_id = random_choice(best_group_ids)
-            entry[group_id].add(person_id)
 
     def get_group_id(self, person_id):
         """

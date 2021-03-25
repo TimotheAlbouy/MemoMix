@@ -12,18 +12,18 @@ class MemoMix {
     private constraints: Constraint[];
 
     public constructor(
-        personIds: Set<string>, groupSizes: Map<string, number>,
+        persons: Set<string>, groupSizes: Map<string, number>,
         history: Entry[]=null, constraints: Constraint[]=null
     ) {
         if (!history) history = [];
         if (!constraints) constraints = [];
 
         this.checkPositiveGroupSizes(groupSizes);
-        this.checkSufficientGroupSizes(personIds, groupSizes);
+        this.checkSufficientGroupSizes(persons, groupSizes);
         for (let entry of history)
             this.checkEntryValidity(entry);
 
-        this.personIds = personIds;
+        this.personIds = persons;
         this.groupSizes = groupSizes;
         this.history = history;
 
@@ -129,7 +129,7 @@ class MemoMix {
         let groupIds = new Set(this.groupSizes.keys());
         constraints.forEach((constraint, index) => {
             let constraintKeys = Object.keys(constraint);
-            let personIds = constraint.personIds;
+            let personIds = constraint.persons;
             for (let personId of personIds) {
                 assert(
                     this.personIds.has(personId),

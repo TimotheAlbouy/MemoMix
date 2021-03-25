@@ -3,20 +3,19 @@ from util import get_person_person_key, get_person_group_key
 
 # IDEAS:
 # - attribute to prioritize new person-group pairings instead of new person-person pairings
-# - check that each 'personId' of 'apart' constraints contains at least one element
 
-# Note: It is important to lift the ambiguation when 2 different persons share the same ID in history and person_ids.
+# CAVEATS:
+# 1. Finding the group configuration that has the lowest redundancy is a NP-hard problem.
+# Hence, this is a heuristic algorithm, not an optimal one. It avoids backtracking by using a greedy method.
+# 2. It is important to lift the ambiguation when 2 different persons share the same ID in history and persons.
 # For example, if the ID is the surname, add another letter in the ID for the last name.
 
-# CAVEAT: Finding the group configuration that has the lowest redundancy is a NP-hard problem.
-# Hence, this is a heuristic algorithm, not an optimal one, that does no backtracking.
-
 class MemoMix:
-    def __init__(self, person_ids: set, group_sizes: dict, history=None, constraints=None):
+    def __init__(self, persons: set, group_sizes: dict, history=None, constraints=None):
         """
         Constructor.
 
-        :param person_ids: the set of person IDs
+        :param persons: the set of person IDs
         :param group_sizes: the dictionary of group capacities
         :param history: the history of past entries
         :param constraints: the list of constraints
@@ -28,11 +27,11 @@ class MemoMix:
             constraints = []
 
         self.check_positive_group_sizes(group_sizes)
-        self.check_sufficient_group_sizes(person_ids, group_sizes)
+        self.check_sufficient_group_sizes(persons, group_sizes)
         for entry in history:
             self.check_entry_validity(entry)
 
-        self.person_ids = person_ids
+        self.person_ids = persons
         self.group_sizes = group_sizes
         self.history = history
 
@@ -79,10 +78,10 @@ class MemoMix:
                     pairing_counts_map[person1_id] += len(group) - 1
                     for person2_id in group[idx + 1:]:
                         if person1_id in self.person_ids and person2_id in self.person_ids:
-                            key = self.get_person_person_key(person1_id, person2_id)
+                            key = get_person_person_key(person1_id, person2_id)
                             person_occurrences_map[key]['count'] += 1
 
-                    key = self.get_person_group_key(person1_id, group_id)
+                    key = get_person_group_key(person1_id, group_id)
                     group_occurrences_map[key]['count'] += 1
 
         return pairing_counts_map, person_occurrences_map, group_occurrences_map
@@ -127,7 +126,7 @@ class MemoMix:
         """
         group_ids = set(self.group_sizes.keys())
         for index, constraint in enumerate(constraints):
-            person_ids = constraint['personIds']
+            person_ids = constraint['persons']
             for person_id in person_ids:
                 assert person_id in self.person_ids, \
                     f"The person '{person_id}' in constraint #{index} does not exist."
