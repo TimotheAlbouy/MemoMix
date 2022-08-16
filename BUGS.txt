@@ -1,9 +1,0 @@
-
-
-constraints = [
-    {'type': 'together', 'personIds': {'Timothé', 'François'}, 'mandatoryGroup': 'g1'},
-    {'type': 'together', 'personIds': {'Cyril'}, 'forbiddenGroups': {'g2'}},
-    {'type': 'apart', 'personIds': {'Arnaud', 'Théophane'}}
-]
-
-Timothé, François and Cyril are always together in g1

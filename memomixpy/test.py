@@ -61,8 +61,9 @@ if __name__ == '__main__':
     bugs_mandatory_group = 0
     bugs_forbidden_groups = 0
     bugs_apart = 0
-    '''
-    for i in range(1000):
+    loops = 1000
+    
+    for i in range(loops):
         entry = mm.generate_entry()
         for group_id, persons in entry.items():
             if group_id == 'g1' and ('Timothé' not in persons or 'François' not in persons):
@@ -71,9 +72,10 @@ if __name__ == '__main__':
                 bugs_forbidden_groups += 1
             if 'Arnaud' in persons and 'Théophane' in persons:
                 bugs_apart += 1
-    print('Bugs mandatory groups:', bugs_mandatory_group / 1000)
-    print('Bugs forbidden groups:', bugs_forbidden_groups / 1000)
-    print('Bugs apart:', bugs_apart / 1000)
-    '''
-    entry = mm.generate_entry()
-    pprint.pp(entry)
+    print('For', loops, 'tests:')
+    print('Bugs mandatory groups:', bugs_mandatory_group)
+    print('Bugs forbidden groups:', bugs_forbidden_groups)
+    print('Bugs apart:', bugs_apart)
+    
+    # entry = mm.generate_entry()
+    # pprint.pp(entry)
